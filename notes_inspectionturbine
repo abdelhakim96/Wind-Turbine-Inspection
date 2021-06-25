@@ -8,3 +8,14 @@ roslaunch airsim_ros_pkgs rviz.launch;
 
 sed -i '/^$/d' inspect_turbine.txt  #remove lines in a text file
 
+
+
+HSV filter params:
+
+Hm=96
+Sm=0
+Vm=209
+h=154
+s=30
+v=253
+
