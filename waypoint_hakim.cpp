@@ -29,8 +29,10 @@
 #include <mavros_msgs/State.h>
 #include <nav_msgs/Odometry.h>
 
+#include "geometry_msgs/TwistStamped.h"
 
 ros::Publisher local_pos_pub;
+ros::Publisher vel_pub;
 ros::Subscriber currentPos;
 ros::Subscriber state_sub;
 ros::ServiceClient set_mode_client;
@@ -38,7 +40,7 @@ ros::ServiceClient takeoff_client;
 ros::ServiceClient command_client;
 ros::ServiceClient arming_client;
 ros::ServiceClient land_client;
-
+//image_transport::ImageTransport depth_sub;
 
 
 mavros_msgs::State current_state;
@@ -47,11 +49,21 @@ nav_msgs::Odometry current_pose_g;
 geometry_msgs::Pose correction_vector_g;
 geometry_msgs::Point local_offset_pose_g;
 geometry_msgs::PoseStamped waypoint_g;
+geometry_msgs::TwistStamped move;
+sensor_msgs::Image depth;
 
+int cx=0;    
+float dy=0;
 float current_heading_g;
 float local_offset_g;
 float correction_heading_g = 0;
 float local_desired_heading_g; 
+int phase=0;
+
+
+
+
+
 
 
 struct gnc_api_waypoint{
@@ -62,13 +74,88 @@ struct gnc_api_waypoint{
 };
 
 
+// The input image should be grayscale
+
+/*
+void imageMoments(const cv::Mat & image)
+{
+    int height=image.rows;
+    int width=image.cols;
+    int pixelValue;
+    
+    int cy;
+    int n;
+    n=1;
+	cx=0;
+    cy=0;
+    for (int i=1;i<height;++i){
+    for (int j=1; j<width; ++j){
+ 
+    pixelValue = (int)image.at<uchar>(i,j);
+    if (pixelValue >50){
+        cx=cx+j;
+        cy=cy+i;
+        n=n+1;
+    }
+    }
+    }
+   cx=cx/n;
+
+
+
+   dy=0.001*(image.cols-cx);
+   std::cout<< cx << std::endl;
+   std::cout<< dy<< std::endl;
+}
+
+*/
+void imageCallback(const sensor_msgs::ImageConstPtr& msg)
+{
+
+  cv_bridge::CvImageConstPtr image;
+  cv::Mat image_grayscale;
+  
+
+    image = cv_bridge::toCvShare(msg);
+    image_grayscale = cv::Mat(image->image.size(), CV_8UC1);
+    cv::convertScaleAbs(image->image, image_grayscale, 100, 0.0);
+
+  
+
+
+    cv::threshold(image_grayscale, image_grayscale, 100, 255, cv::THRESH_BINARY);
+
+
+    int height=image_grayscale.rows;
+    int width=image_grayscale.cols;
+    int pixelValue;
+    int cy;
+    int n;
+    n=1;
+    cy=0;
+    for (int i=1;i<height;++i){
+    for (int j=1; j<width; ++j){
+
+    pixelValue = (int)image_grayscale.at<uchar>(i,j);
+    if (pixelValue >50){
+        cx=cx+j;
+        cy=cy+i;
+        n=n+1;
+    }
+    }
+    }
+   cx=cx/n;
+
+  dy=0.01*(640-cx);
+  std::cout<< cx << std::endl;
+  std::cout<< dy << std::endl;
+
+}
 
 void state_cb(const mavros_msgs::State::ConstPtr& msg)
 {
   current_state_g = *msg;
 }
-
-
 
 
 int wait4connect()
@@ -93,6 +180,22 @@ int wait4connect()
 }
 
 
+void pose_cb(const nav_msgs::Odometry::ConstPtr& msg)
+{
+  current_pose_g = *msg;
+  float q0 = current_pose_g.pose.pose.orientation.w;
+  float q1 = current_pose_g.pose.pose.orientation.x;
+  float q2 = current_pose_g.pose.pose.orientation.y;
+  float q3 = current_pose_g.pose.pose.orientation.z;
+  float psi = atan2((2*(q0*q3 + q1*q2)), (1 - 2*(pow(q2,2) + pow(q3,2))) );
+  //ROS_INFO("Current Heading %f ENU", psi*(180/M_PI));
+  //Heading is in ENU
+  //IS YAWING COUNTERCLOCKWISE POSITIVE?
+  //current_heading_g = psi*(180/M_PI) - local_offset_g;
+  //ROS_INFO("Current Heading %f origin", current_heading_g);
+  //ROS_INFO("x: %f y: %f z: %f", current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, current_pose_g.pose.pose.position.z);
+}
+
 
 
 int wait4start()
@@ -114,36 +217,9 @@ int wait4start()
 }
 
 
-
-
-void pose_cb(const nav_msgs::Odometry::ConstPtr& msg)
-{
-  current_pose_g = *msg;
-  float q0 = current_pose_g.pose.pose.orientation.w;
-  float q1 = current_pose_g.pose.pose.orientation.x;
-  float q2 = current_pose_g.pose.pose.orientation.y;
-  float q3 = current_pose_g.pose.pose.orientation.z;
-  float psi = atan2((2*(q0*q3 + q1*q2)), (1 - 2*(pow(q2,2) + pow(q3,2))) );
-  //ROS_INFO("Current Heading %f ENU", psi*(180/M_PI));
-  //Heading is in ENU
-  //IS YAWING COUNTERCLOCKWISE POSITIVE?
-  //current_heading_g = psi*(180/M_PI) - local_offset_g;
-  //ROS_INFO("Current Heading %f origin", current_heading_g);
-  //ROS_INFO("x: %f y: %f z: %f", current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, current_pose_g.pose.pose.position.z);
-}
-
 void set_destination(float x, float y, float z, float psi)
 {
-	//set_heading(psi);
-	//transform map to local
-	//float deg2rad = (M_PI/180);
-	//float Xlocal = x*cos((correction_heading_g + local_offset_g - 90)*deg2rad) - y*sin((correction_heading_g + local_offset_g - 90)*deg2rad);
-	//float Ylocal = x*sin((correction_heading_g + local_offset_g - 90)*deg2rad) + y*cos((correction_heading_g + local_offset_g - 90)*deg2rad);
-	//float Zlocal = z;
 
-	//x = Xlocal + correction_vector_g.position.x + local_offset_pose_g.x;
-	//y = Ylocal + correction_vector_g.position.y + local_offset_pose_g.y;
-	//z = Zlocal + correction_vector_g.position.z + local_offset_pose_g.z;
 	ROS_INFO("Destination set to x: %f y: %f z: %f origin frame", x, y, z);
 
 	waypoint_g.pose.position.x = x;
@@ -171,10 +247,7 @@ int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01
     float deltaY = abs(waypoint_g.pose.position.y - current_pose_g.pose.pose.position.y);
     float deltaZ = 0; //abs(waypoint_g.pose.position.z - current_pose_g.pose.pose.position.z);
     float dMag = sqrt( pow(deltaX, 2) + pow(deltaY, 2) + pow(deltaZ, 2) );
-    // ROS_INFO("dMag %f", dMag);
-    // ROS_INFO("current pose x %F y %f z %f", (current_pose_g.pose.pose.position.x), (current_pose_g.pose.pose.position.y), (current_pose_g.pose.pose.position.z));
-    // ROS_INFO("waypoint pose x %F y %f z %f", waypoint_g.pose.position.x, waypoint_g.pose.position.y,waypoint_g.pose.position.z);
-    //check orientation
+
     float cosErr = cos(current_heading_g*(M_PI/180)) - cos(local_desired_heading_g*(M_PI/180));
     float sinErr = sin(current_heading_g*(M_PI/180)) - sin(local_desired_heading_g*(M_PI/180));
     
@@ -191,12 +264,7 @@ int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01
 }
 
 
-
-
-
-
-
-
+    
 
 int arm()
 {
@@ -280,6 +348,12 @@ int init_publisher_subscriber(ros::NodeHandle controlnode)
 	set_mode_client = controlnode.serviceClient<mavros_msgs::SetMode>((ros_namespace + "/mavros/set_mode").c_str());
 	takeoff_client = controlnode.serviceClient<mavros_msgs::CommandTOL>((ros_namespace + "/mavros/cmd/takeoff").c_str());
 	command_client = controlnode.serviceClient<mavros_msgs::CommandLong>((ros_namespace + "/mavros/cmd/command").c_str());
+	vel_pub = controlnode.advertise<geometry_msgs::TwistStamped>((ros_namespace + "/mavros/setpoint_velocity/cmd_vel").c_str(), 10);
+	//depth_sub=controlnode.subscribe<image_transport::Subscriber>((ros_namespace + "/airsim_node/PX4/inspection_camera/DepthVis").c_str(), 10, imageCallback);
+	
+	
+	
+	
 	return 0;
 }
 
@@ -295,7 +369,11 @@ int main(int argc, char** argv)
 	init_publisher_subscriber(gnc_node);
 
     
-  
+    
+    
+    image_transport::ImageTransport it(gnc_node);
+    image_transport::Subscriber sub = it.subscribe("/airsim_node/PX4/inspection_camera/DepthVis", 1, imageCallback); 
+    
     //wait4connect();
 	//wait4start();
     
@@ -306,14 +384,14 @@ int main(int argc, char** argv)
 	nextWayPoint.z = 4;
 	nextWayPoint.psi = 0;
 	waypointList.push_back(nextWayPoint);
-	nextWayPoint.x = 11500/100;
-	nextWayPoint.y = 4850/100;
-	nextWayPoint.z = 100/50;
+	nextWayPoint.x = 11500/100-1;
+	nextWayPoint.y = 4850/100-1;
+	nextWayPoint.z = 300/50;
 	nextWayPoint.psi = 30;
 	waypointList.push_back(nextWayPoint);
 	
-    
 
+    
 	
     arm();
     mavros_msgs::SetMode offb_set_mode;
@@ -323,15 +401,28 @@ int main(int argc, char** argv)
 	arm_cmd.request.value = true;
 
 	//specify control loop rate. We recommend a low frequency to not over load the FCU with messages. Too many messages will cause the drone to be sluggish
-	ros::Rate rate(20.0);
+	ros::Rate rate(40.0);
 	int counter = 0;
 
 	ros::Time last_request = ros::Time::now();
 
+    
+    
 	while(ros::ok())
 	{   
+		///airsim_node/PX4/inspection_camera/DepthVis
 	    ros::spinOnce();
 		rate.sleep();
+		
+         
+    //int k= imageCallback(depth);
+    
+
+	//float Ylocal = x*sin((correction_heading_g + local_offset_g - 90)*deg2rad) + y*cos((correction_heading_g + local_offset_g - 90)*deg2rad);
+        
+
+
+
         if( current_state.mode != "OFFBOARD" &&
 				(ros::Time::now() - last_request > ros::Duration(5.0))){
 				if( set_mode_client.call(offb_set_mode) &&
@@ -343,18 +434,39 @@ int main(int argc, char** argv)
 
 	
        
-
 		if(check_waypoint_reached(.3) == 1)
-		{
-			if (counter < waypointList.size())
-			{
-				set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
-				counter++;	
-			}
-		}	
-		
-	}
 
+		{   
+
+			if (counter == waypointList.size()){
+             //ROS_INFO("x: %s",counter);
+			 //std::cout<<counter<<std::endl;
+			 
+			 
+			 set_destination( waypointList[counter-1].x, current_pose_g.pose.pose.position.y-dy, current_pose_g.pose.pose.position.z + 1, waypointList[counter].psi);
+			 //std::cout<<dy<<std::endl;
+             ROS_INFO("dy: %f",dy);
+			
+
+			 cv::namedWindow("view");
+             
+			 cv::destroyWindow("view");
+			}
+
+			if (counter < waypointList.size())
+			{   
+				
+				set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
+				counter++;
+    
+
+			}
+             
+        
+	    }
 	
+
+	}
+	 cv::destroyWindow("view");
 	return 0;
 }
