@@ -55,11 +55,11 @@ sensor_msgs::Image depth;
 int cx=0;    
 float dy=0;
 float current_heading_g;
-float local_offset_g;
+float local_offset_g=0;;
 float correction_heading_g = 0;
 float local_desired_heading_g; 
 int phase=0;
-
+float hakim;
 
 
 
@@ -74,41 +74,7 @@ struct gnc_api_waypoint{
 };
 
 
-// The input image should be grayscale
 
-/*
-void imageMoments(const cv::Mat & image)
-{
-    int height=image.rows;
-    int width=image.cols;
-    int pixelValue;
-    
-    int cy;
-    int n;
-    n=1;
-	cx=0;
-    cy=0;
-    for (int i=1;i<height;++i){
-    for (int j=1; j<width; ++j){
- 
-    pixelValue = (int)image.at<uchar>(i,j);
-    if (pixelValue >50){
-        cx=cx+j;
-        cy=cy+i;
-        n=n+1;
-    }
-    }
-    }
-   cx=cx/n;
-
-
-
-   dy=0.001*(image.cols-cx);
-   std::cout<< cx << std::endl;
-   std::cout<< dy<< std::endl;
-}
-
-*/
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
 
@@ -146,7 +112,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     }
    cx=cx/n;
 
-  dy=0.01*(640-cx);
+  dy=0.005*((image_grayscale.cols/2)-cx);
   std::cout<< cx << std::endl;
   std::cout<< dy << std::endl;
 
@@ -179,6 +145,43 @@ int wait4connect()
 	
 }
 
+void set_heading(float heading)
+{
+  local_desired_heading_g = heading; 
+  heading = heading + correction_heading_g + local_offset_g;
+  
+  ROS_INFO("Desired Heading %f ", local_desired_heading_g);
+  float yaw = heading*(M_PI/180);
+  float pitch = 0;
+  float roll = 0;
+
+  float cy = cos(yaw * 0.5);
+  float sy = sin(yaw * 0.5);
+  float cr = cos(roll * 0.5);
+  float sr = sin(roll * 0.5);
+  float cp = cos(pitch * 0.5);
+  float sp = sin(pitch * 0.5);
+
+  float qw = cy * cr * cp + sy * sr * sp;
+  float qx = cy * sr * cp - sy * cr * sp;
+  float qy = cy * cr * sp + sy * sr * cp;
+  float qz = sy * cr * cp - cy * sr * sp;
+
+  waypoint_g.pose.orientation.w = qw;
+  waypoint_g.pose.orientation.x = qx;
+  waypoint_g.pose.orientation.y = qy;
+  waypoint_g.pose.orientation.z = qz;
+}
+
+
+
+
+
+
+
+
+
+
 
 void pose_cb(const nav_msgs::Odometry::ConstPtr& msg)
 {
@@ -188,10 +191,11 @@ void pose_cb(const nav_msgs::Odometry::ConstPtr& msg)
   float q2 = current_pose_g.pose.pose.orientation.y;
   float q3 = current_pose_g.pose.pose.orientation.z;
   float psi = atan2((2*(q0*q3 + q1*q2)), (1 - 2*(pow(q2,2) + pow(q3,2))) );
+  hakim=psi;
   //ROS_INFO("Current Heading %f ENU", psi*(180/M_PI));
   //Heading is in ENU
   //IS YAWING COUNTERCLOCKWISE POSITIVE?
-  //current_heading_g = psi*(180/M_PI) - local_offset_g;
+  current_heading_g = psi*(180/M_PI) - local_offset_g;
   //ROS_INFO("Current Heading %f origin", current_heading_g);
   //ROS_INFO("x: %f y: %f z: %f", current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, current_pose_g.pose.pose.position.z);
 }
@@ -221,23 +225,16 @@ void set_destination(float x, float y, float z, float psi)
 {
 
 	ROS_INFO("Destination set to x: %f y: %f z: %f origin frame", x, y, z);
-
+    set_heading(psi);
 	waypoint_g.pose.position.x = x;
 	waypoint_g.pose.position.y = y;
 	waypoint_g.pose.position.z = z;
-
+    
 	local_pos_pub.publish(waypoint_g);
 	
 }
 
 
-
-/**
-\ingroup control_functions
-This function returns an int of 1 or 0. THis function can be used to check when to request the next waypoint in the mission. 
-@return 1 - waypoint reached 
-@return 0 - waypoint not reached
-*/
 int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01)
 {
 	local_pos_pub.publish(waypoint_g);
@@ -245,15 +242,21 @@ int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01
 	//check for correct position 
 	float deltaX = abs(waypoint_g.pose.position.x - current_pose_g.pose.pose.position.x);
     float deltaY = abs(waypoint_g.pose.position.y - current_pose_g.pose.pose.position.y);
-    float deltaZ = 0; //abs(waypoint_g.pose.position.z - current_pose_g.pose.pose.position.z);
-    float dMag = sqrt( pow(deltaX, 2) + pow(deltaY, 2) + pow(deltaZ, 2) );
+    float deltaZ = abs(waypoint_g.pose.position.z - current_pose_g.pose.pose.position.z);
 
+    float dMag = sqrt( pow(deltaX, 2) + pow(deltaY, 2) + pow(deltaZ, 2) );
+    // ROS_INFO("dMag %f", dMag);
+    // ROS_INFO("current pose x %F y %f z %f", (current_pose_g.pose.pose.position.x), (current_pose_g.pose.pose.position.y), (current_pose_g.pose.pose.position.z));
+    // ROS_INFO("waypoint pose x %F y %f z %f", waypoint_g.pose.position.x, waypoint_g.pose.position.y,waypoint_g.pose.position.z);
+    //check orientation
     float cosErr = cos(current_heading_g*(M_PI/180)) - cos(local_desired_heading_g*(M_PI/180));
     float sinErr = sin(current_heading_g*(M_PI/180)) - sin(local_desired_heading_g*(M_PI/180));
     
     float headingErr = sqrt( pow(cosErr, 2) + pow(sinErr, 2) );
-
-
+    headingErr=0;
+    // ROS_INFO("current heading %f", current_heading_g);
+    // ROS_INFO("local_desired_heading_g %f", local_desired_heading_g);
+    // ROS_INFO("current heading error %f", headingErr);
 
     if( dMag < pos_tolerance && headingErr < heading_tolerance)
 	{
@@ -262,10 +265,6 @@ int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01
 		return 0;
 	}
 }
-
-
-    
-
 int arm()
 {
 	//intitialize first waypoint of mission
@@ -295,14 +294,6 @@ int arm()
 		return -1;	
 	}
 }
-
-
-
-
-
-
-
-
 int set_speed(float speed__mps)
 {
 	mavros_msgs::CommandLong speed_cmd;
@@ -350,10 +341,6 @@ int init_publisher_subscriber(ros::NodeHandle controlnode)
 	command_client = controlnode.serviceClient<mavros_msgs::CommandLong>((ros_namespace + "/mavros/cmd/command").c_str());
 	vel_pub = controlnode.advertise<geometry_msgs::TwistStamped>((ros_namespace + "/mavros/setpoint_velocity/cmd_vel").c_str(), 10);
 	//depth_sub=controlnode.subscribe<image_transport::Subscriber>((ros_namespace + "/airsim_node/PX4/inspection_camera/DepthVis").c_str(), 10, imageCallback);
-	
-	
-	
-	
 	return 0;
 }
 
@@ -371,28 +358,79 @@ int main(int argc, char** argv)
     
     
     
-    image_transport::ImageTransport it(gnc_node);
-    image_transport::Subscriber sub = it.subscribe("/airsim_node/PX4/inspection_camera/DepthVis", 1, imageCallback); 
+    //image_transport::ImageTransport it(gnc_node);
+    //image_transport::Subscriber sub = it.subscribe("/airsim_node/PX4/inspection_camera/DepthVis", 1, imageCallback); 
     
     //wait4connect();
 	//wait4start();
     
     std::vector<gnc_api_waypoint> waypointList;
 	gnc_api_waypoint nextWayPoint;
-	nextWayPoint.x = 0;
-	nextWayPoint.y = 0;
-	nextWayPoint.z = 4;
-	nextWayPoint.psi = 0;
-	waypointList.push_back(nextWayPoint);
-	nextWayPoint.x = 11500/100-1;
-	nextWayPoint.y = 4850/100-1;
-	nextWayPoint.z = 300/50;
-	nextWayPoint.psi = 30;
-	waypointList.push_back(nextWayPoint);
-	
+    
+
+    int yt=4731/100;
+	int xt=4484/100 ;
+	int zt= 1600/50;
+	int blade_l=6;
+    int r=8;
+    int phi=0;
+    int phase=0;
+	int starth=zt;
+	int endh=zt+10;
+	int speedv=1;
+    int speedh=0.1;
 
     
+
+	nextWayPoint.x = 0;
+	nextWayPoint.y = 0;
+	nextWayPoint.z = 0;
+	nextWayPoint.psi = 0;
+
+	waypointList.push_back(nextWayPoint);
+
+	nextWayPoint.x = xt+r*sin((phi)*(3.14159/180));
+	nextWayPoint.y = yt+r*cos(phi*(3.14159/180));
+	nextWayPoint.z = zt;
+	nextWayPoint.psi = 270-(phi);
+
+
+    waypointList.push_back(nextWayPoint);
+
 	
+	nextWayPoint.x = xt-r*sin((90-phi)*(3.14159/180));
+	nextWayPoint.y = yt+r*cos((90-phi)*(3.14159/180));
+	nextWayPoint.z = zt+blade_l;
+	nextWayPoint.psi = 360-(phi);
+
+
+   
+    waypointList.push_back(nextWayPoint);
+	
+	nextWayPoint.x = xt-r*sin((phi)*(3.14159/180));
+	nextWayPoint.y = yt-r*cos((phi)*(3.14159/180));
+	nextWayPoint.z = zt;
+	nextWayPoint.psi = 90-(phi);
+
+
+	waypointList.push_back(nextWayPoint);
+	
+	nextWayPoint.x = xt+r*sin((90-phi)*(3.14159/180));
+	nextWayPoint.y = yt-r*cos((90-phi)*(3.14159/180));
+	nextWayPoint.z = zt+blade_l;
+	nextWayPoint.psi = 180-(phi);
+    
+	waypointList.push_back(nextWayPoint);
+
+
+	nextWayPoint.x = xt+5;
+	nextWayPoint.y = yt+5;
+	nextWayPoint.z = 0;
+	nextWayPoint.psi = 0;
+    
+    waypointList.push_back(nextWayPoint);
+
+
     arm();
     mavros_msgs::SetMode offb_set_mode;
 	offb_set_mode.request.custom_mode = "OFFBOARD";	
@@ -401,27 +439,39 @@ int main(int argc, char** argv)
 	arm_cmd.request.value = true;
 
 	//specify control loop rate. We recommend a low frequency to not over load the FCU with messages. Too many messages will cause the drone to be sluggish
-	ros::Rate rate(40.0);
+	ros::Rate rate(10.0);
 	int counter = 0;
 
 	ros::Time last_request = ros::Time::now();
 
-    
-    
+	ros::Time hakim_request = ros::Time::now();
+    int tt=0;
+    int vz=0;
+    int reachedend=0;
+	int movez=1;
+	float zz=0;
 	while(ros::ok())
 	{   
 		///airsim_node/PX4/inspection_camera/DepthVis
+		
 	    ros::spinOnce();
 		rate.sleep();
-		
+	   
          
     //int k= imageCallback(depth);
     
 
 	//float Ylocal = x*sin((correction_heading_g + local_offset_g - 90)*deg2rad) + y*cos((correction_heading_g + local_offset_g - 90)*deg2rad);
+                
+
+
+       
         
 
 
+
+
+        //set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
 
         if( current_state.mode != "OFFBOARD" &&
 				(ros::Time::now() - last_request > ros::Duration(5.0))){
@@ -432,41 +482,136 @@ int main(int argc, char** argv)
 				last_request = ros::Time::now();
 		} 
 
-	
-       
-		if(check_waypoint_reached(.3) == 1)
 
-		{   
+        
 
-			if (counter == waypointList.size()){
-             //ROS_INFO("x: %s",counter);
-			 //std::cout<<counter<<std::endl;
-			 
-			 
-			 set_destination( waypointList[counter-1].x, current_pose_g.pose.pose.position.y-dy, current_pose_g.pose.pose.position.z + 1, waypointList[counter].psi);
-			 //std::cout<<dy<<std::endl;
-             ROS_INFO("dy: %f",dy);
+
+
+
+  
+
+		  
+				if (current_pose_g.pose.pose.position.z>endh+1){
+                    vz=0;
+					//set_destination( current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, zz, waypointList[counter].psi);
+				    if( (ros::Time::now() - hakim_request > ros::Duration(5.0))){
+					reachedend=1;
+					
+					}
+
+                    hakim_request = ros::Time::now();
+					ROS_INFO("reached top");
+				}
+
+        if (counter == 3 || counter ==5){
+				vz=1;
+		  }	
+		if (counter == 4 || counter ==6){
+				vz=-1;
+		}			
+				
+
 			
 
-			 cv::namedWindow("view");
-             
-			 cv::destroyWindow("view");
-			}
-
-			if (counter < waypointList.size())
-			{   
+            
+			    
+			    if (current_pose_g.pose.pose.position.z<starth-1){
+                    vz=0;
+                   // zz=current_pose_g.pose.pose.position.z;
+					//set_destination( current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, zz, waypointList[counter].psi);
+                    reachedend=1;
+					  
+					ROS_INFO("reached bottom");
+				}			     
 				
+
+
+        if(check_waypoint_reached(.5) == 1)
+         
+		{  
+
+			
+        if (counter <3){ 
+			    
+			   
+                  
 				set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
 				counter++;
-    
+	            reachedend=0;
+				
 
-			}
+
+
+			}	
              
-        
-	    }
-	
+         
+		}
+       
 
+       
+        
+		
+	    
+		if(counter>=2 && counter <7  && (reachedend==0 || check_waypoint_reached(.5) == 1))
+		{
+			
+			set_destination( current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, current_pose_g.pose.pose.position.z + vz, waypointList[counter-2].psi);
+			
+			
+		}else
+		{
+            
+			set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
+			
+		}
+        
+		
+       
+        if (reachedend==1 && counter<7 && counter>2  ){
+         zz=current_pose_g.pose.pose.position.z;
+         set_destination(waypointList[counter-1].x,waypointList[counter-1].y,waypointList[counter-1].z, waypointList[counter-1].psi);
+		 if (check_waypoint_reached(0.7) == 1)
+		 {
+		 counter++;
+         reachedend=0;
+         
+		}
+		 
+        if (counter>5){
+             set_destination(0,0,0,0);
+
+		}
+         
+
+		 
+	   }
+
+
+
+	    ROS_INFO("counter val %d", counter);
+		ROS_INFO("reached value %d", reachedend);
+		ROS_INFO("x %f", current_pose_g.pose.pose.position.x);
+		ROS_INFO("y %f", current_pose_g.pose.pose.position.y);
+		ROS_INFO("z %f", current_pose_g.pose.pose.position.z);
+		ROS_INFO("yaw %f", hakim);
+		ROS_INFO("x %f", waypointList[counter-1].x);
+		ROS_INFO("y %f", waypointList[counter-1].y);
+		ROS_INFO("z %f", waypointList[counter-1].z);
+		ROS_INFO("yaw %f", waypointList[counter-1].psi);			
+	
+		/*else {
+			if ((counter>2)&& reachedend==0) 
+			{
+			set_destination( current_pose_g.pose.pose.position.x, current_pose_g.pose.pose.position.y, current_pose_g.pose.pose.position.z + vz, waypointList[counter].psi);
+			ROS_INFO("going up %d", counter);
+			ROS_INFO("vz going up %d", vz);
+			}
+			}
+
+			std::cout<< counter << std::endl;
+			*/
 	}
-	 cv::destroyWindow("view");
+
 	return 0;
+
 }
