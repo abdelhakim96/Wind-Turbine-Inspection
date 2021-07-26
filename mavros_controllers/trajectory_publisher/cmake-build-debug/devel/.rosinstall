@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/jonas/code/catkin_Windturbine/src/mavros_controllers/trajectory_publisher/cmake-build-debug/devel/setup.sh

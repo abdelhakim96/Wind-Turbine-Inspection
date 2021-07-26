@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: offboard_control
+Description: Description of offboard_control
+Version: 0.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -loffboard_control
+Requires: roscpp rospy std_msgs mavros_msgs geometry_msgs sensor_msgs tf
