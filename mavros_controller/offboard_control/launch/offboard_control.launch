@@ -1,0 +1,10 @@
+<launch>
+    <arg name="verbose" default="false"/>
+    <arg name="do_takeoff" default="true"/>
+
+    <node pkg="offboard_control" type="offboard_control_node" name="offboard_control_node" output="screen">
+        <param name="verbose" value="$(arg verbose)"/>
+        <param name="do_takeoff" value="$(arg do_takeoff)"/>
+    </node>
+
+</launch>
