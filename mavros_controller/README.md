@@ -27,9 +27,9 @@ Create a catkin workspace:
 This folder will probably be already created since the previous process would have created it. If it is not present, do:
 
 ```bash
-# [catkin_ws] = "Your ws name" 
-mkdir -p ~/[catkin_ws]/src
-cd ~/[catkin_ws]
+# catkin_ws = "Your ws name" 
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws
 catkin init
 catkin config --merge-devel
 cd src
@@ -51,7 +51,7 @@ wstool automates the installation of dependencies and updates all packages. If y
 
 ```bash
 cd ~/catkin_ws
-wstool merge -t src src/mavros_controllers/dependencies.rosinstall
+wstool merge -t src src/mavros_controller/dependencies.rosinstall
 wstool update -t src -j4
 rosdep install --from-paths src --ignore-src -y --rosdistro $ROS_DISTRO
 catkin build
