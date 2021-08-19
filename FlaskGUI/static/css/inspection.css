@@ -1,5 +1,27 @@
+html, body {
+    height: 100vh;
+    overflow: hidden;
+}
+
 p {
     color: black;
+}
+
+.scroll_wrapper section {
+    /*width: 100%;*/
+    /*height: 100vh; !*vh = View Height*!*/
+    /*overflow-y: scroll;*/
+    /*scroll-snap-type: y mandatory;*/
+    scroll-snap-align: start;
+}
+
+.panel {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
 .canvas {
@@ -11,14 +33,37 @@ p {
     background-color: white;
 }
 
+.img {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    zoom: 1;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+    z-index: 999;
+}
+
+#rotation_wheel {
+    display: none;
+    position: absolute;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+#wind_direction_text {
+    z-index: 2000;
+    text-align: center;
+    color: black;
+    margin-top: -40px;
+}
+
 .platform {
     background-color: dodgerblue;
-
 }
 
 .wind-turbine {
     background-color: #e3b35f;
-
 }
 
 .circle {
@@ -49,6 +94,16 @@ p {
     visibility: hidden;
     position: absolute;
     left: -88px;
+}
+
+.bg_info_text {
+    border-radius: 25px;
+    background-color: white;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .round_corners {

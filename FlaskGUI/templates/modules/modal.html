@@ -71,8 +71,17 @@
                             <div class="col"><p style="color: black">GPS location:</p></div>
                             <div class="col"><p style="color: black">lat = {{ value.gps.lat }}</p></div>
                             <div class="col"><p style="color: black">lng = {{ value.gps.lng }}</p></div>
-                            <div class="col"><p style="color: black">wind direction = {{ value.gps.wind_direction }}</p>
-                            </div>
+                            <div class="col"><p style="color: black"></p></div>
+                        </div>
+                        <div class="row">
+                            <div class="col"><p style="color: black">Wind info:
+                                = {{ value.gps.wind_direction }}</p></div>
+                            <div class="col"><p class="wd" style="color: black">Direction
+                                = {{ value.gps.wind_direction }}</p></div>
+                            <div class="col"><p class="wp" style="color: black">Power
+                                = 0</p></div>
+                            <div class="col"><p style="color: black"></p></div>
+
                         </div>
                         <div class="row">
                             <div class="col"><p style="color: black">ue4 location:</p></div>
