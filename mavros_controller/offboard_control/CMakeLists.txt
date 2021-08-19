@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(offboard_control)
-
+#add_subdirectory(thirdparty/restclient-cpp)
 add_definitions(-std=c++11)
 # How to print variables:
 # message(STATUS "PRINTING PROJECT NAME: ${PROJECT_NAME}")
@@ -21,12 +21,14 @@ catkin_package(
 #############
 # LIBRARIES #
 #############
+MESSAGE(STATUS "JSON ${Json_INCLUDE_DIRS}")
 include_directories(
         include
         ${Boost_INCLUDE_DIR}
         ${catkin_INCLUDE_DIRS}
         ${Eigen_INCLUDE_DIRS}
 )
+
 add_library(${PROJECT_NAME}
         src/offboard_control.cpp
         )
@@ -36,6 +38,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 ############
 # BINARIES #
 ############
+
 add_executable(offboard_control_node
         src/offboard_control_node.cpp
         )

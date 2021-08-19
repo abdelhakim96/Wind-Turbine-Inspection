@@ -39,6 +39,7 @@ offboard_control::offboard_control(const ros::NodeHandle &nh, const ros::NodeHan
     // PARAMETERS:
     nh_private_.param<bool>("verbose", verbose_, false);
     nh_private_.param<bool>("do_takeoff", do_takeoff_, false);
+    nh_private_.param<string>("server_api", server_api_, "http://127.0.0.1:5000/inspection/mission_info");
 }
 
 offboard_control::~offboard_control() = default;
@@ -123,7 +124,7 @@ void offboard_control::cmdloopCallback(const ros::TimerEvent &event) {
         }
         case MISSION_COMPUTE: {
             print_state("STATE_MACHINE::MISSION_COMPUTE");
-            
+
             // TODO:: Get to wind-turbine
             // 1. Determine what wind-turbine needs to be inspected
             // *** Through API or a ros topic.
@@ -145,9 +146,9 @@ void offboard_control::cmdloopCallback(const ros::TimerEvent &event) {
             // 2. Based on information above, compute mission to get
 
             // TODO:: Only for debugging
-            waypointList.push(generatePose(0, 0, 10, 0, 0, 90.0));
-            waypointList.push(generatePose(0, 100, 10, 0, 0, 180.0));
-            waypointList.push(generatePose(100, 0, 10, 0, 0, 270.0));
+            waypointList.push(generatePose(0, 0, 90, 0, 0, 90.0));
+            waypointList.push(generatePose(-300, 200, 90, 0, 0, 180.0));
+            waypointList.push(generatePose(-500, 400, 90, 0, 0, 270.0));
             node_state = MISSION_EXECUTION;
             break;
         }
@@ -173,6 +174,8 @@ void offboard_control::cmdloopCallback(const ros::TimerEvent &event) {
                 waypointList.pop();
                 local_pos_pub_.publish(target_pose_);
             }
+            ROS_INFO("x: %f, y: %f, z: %f", target_pose_.pose.position.x, target_pose_.pose.position.y,
+                     target_pose_.pose.position.z);
 
 //            Eigen::Vector3d desired_acc;
 //            if (feedthrough_enable_) {
@@ -217,6 +220,33 @@ void offboard_control::statusloopCallback(const ros::TimerEvent &event) {
         }
         last_request_ = ros::Time::now();
     } else {
+        if (ros::Time::now() - last_request_ > ros::Duration(3.0)) {
+            try {
+                // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
+                http::Request request{server_api_};
+
+                // send a get request
+                const auto response = request.send("GET");
+                auto msg = std::string{response.body.begin(), response.body.end()};
+                mission.Load(msg);
+                windfarm_map_.clear();
+                for (const auto &j : mission.ObjectRange()) {
+                    windfarm_map_.emplace_back(j.second); // Creates a WindTurbine object given the args
+//                    std::cout << "Object[ " << j.first << " ] = " << j.second << "\n";
+                }
+                if (verbose_) {
+                    for (const auto &wt : windfarm_map_) {
+                        ROS_INFO("windfarm_map_[ %s ] = %s", wt.name.c_str(), wt.to_string().c_str());
+                    }
+                } else {
+                    ROS_INFO("MSG response: %s",
+                             (std::string{response.body.begin(), response.body.end()}).c_str()); // print the result
+                }
+            }
+            catch (const std::exception &e) {
+                ROS_INFO("Request failed, error: %s", e.what());
+            }
+        }
         if (!current_state_.armed && (ros::Time::now() - last_request_ > ros::Duration(3.0))) {
             if (arming_client_.call(arm_cmd_) && arm_cmd_.response.success) {
                 ROS_INFO("Vehicle armed");
@@ -268,6 +298,6 @@ bool offboard_control::check_waypoint_reached(float pos_tolerance, float heading
         ROS_INFO("current heading error %f", headingErr);
         ROS_INFO("=========================================================");
     }
-    return distance_magnitude < pos_tolerance && headingErr < heading_tolerance_deg;
+    return distance_magnitude < 0.3 && headingErr < heading_tolerance_deg;
 }
 

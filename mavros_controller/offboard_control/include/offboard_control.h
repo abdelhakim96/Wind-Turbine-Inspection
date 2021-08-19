@@ -23,8 +23,9 @@
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <tf/transform_broadcaster.h>
-
-
+#include "HTTPRequest.hpp"
+#include "simple_json.hpp"
+#include "wind_turbine.hpp"
 #include "common.h"
 
 using namespace std;
@@ -40,7 +41,10 @@ public:
 private:
     bool verbose_;
     bool do_takeoff_;
+    string server_api_;
     string last_text_;
+    simple_json::JSON mission;
+    vector<WindTurbine> windfarm_map_;
     // Drone states
     mavros_msgs::State current_state_;
     geometry_msgs::PoseStamped current_pose_;

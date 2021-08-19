@@ -73,6 +73,7 @@ cd ~/catkin_ws/src
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/ethz-asl/eigen_catkin
 git clone https://github.com/ethz-asl/mav_comm
+git clone https://github.com/ethz-asl/json_catkin
 ```
 
 Build all the packages:
