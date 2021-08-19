@@ -87,7 +87,7 @@ source ~/catkin_ws/devel/setup.bash
 The following launch file enables the geometric controller to follow a circular trajectory
 
 ``` bash
-roslaunch offboard_control offboard_control_node.launch
+roslaunch offboard_control offboard_control.launch
 ```
 
 ## Nodes
