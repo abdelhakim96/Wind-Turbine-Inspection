@@ -8,7 +8,7 @@
 offboard_control::offboard_control(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private) :
         nh_(nh), nh_private_(nh_private) {
     // Ros Publisher:
-    local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);
+    local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/hummingbird/command/pose", 10);
 
     // Ros Subscribers:
     current_position_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,
@@ -146,9 +146,28 @@ void offboard_control::cmdloopCallback(const ros::TimerEvent &event) {
             // 2. Based on information above, compute mission to get
 
             // TODO:: Only for debugging
-            waypointList.push(generatePose(0, 0, 90, 0, 0, 90.0));
-            waypointList.push(generatePose(-300, 200, 90, 0, 0, 180.0));
-            waypointList.push(generatePose(-500, 400, 90, 0, 0, 270.0));
+            //waypointList.push(generatePose(0, 0, 90, 0, 0, 90.0));
+            //waypointList.push(generatePose(-300, 200, 90, 0, 0, 180.0));
+            //waypointList.push(generatePose(-500, 400, 90, 0, 0, 270.0));
+            int y_t=6490/100;
+            int x_t=2340/100;
+            int z_t=20;
+            int r_t=13;
+            int a_t=180;
+            int b_h=10;
+            float pi=3.14159;
+            
+            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 270-a_t));
+            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 270-a_t));
+            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t+b_h, 0, 0, 360-a_t));
+            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t, 0, 0, 360-a_t));
+            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 90-a_t));
+            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 90-a_t));
+            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t+b_h, 0, 0, 180-a_t));
+            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t, 0, 0, 180-a_t));
+           
+            
+
             node_state = MISSION_EXECUTION;
             break;
         }
@@ -298,6 +317,7 @@ bool offboard_control::check_waypoint_reached(float pos_tolerance, float heading
         ROS_INFO("current heading error %f", headingErr);
         ROS_INFO("=========================================================");
     }
-    return distance_magnitude < 0.3 && headingErr < heading_tolerance_deg;
+    return distance_magnitude < 0.3 ;
+    //return distance_magnitude < 0.3 && headingErr < heading_tolerance_deg;
 }
 
