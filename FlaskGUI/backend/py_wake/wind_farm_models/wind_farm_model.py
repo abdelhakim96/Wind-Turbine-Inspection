@@ -365,15 +365,21 @@ class SimulationResult(xr.Dataset):
 
         return ds
 
-    def flow_box(self, x, y, h, wd=None, ws=None):
+    def flow_box(self, x, y, h, wd=None, ws=None, save_memory=False):
         X, Y, H = np.meshgrid(x, y, h)
-        x_j, y_j, h_j = X.flatten(), Y.flatten(), H.flatten()
 
-        wd, ws = self._wd_ws(wd, ws)
-        lw_j, WS_eff_jlk, TI_eff_jlk = self.windFarmModel._flow_map(
-            x_j, y_j, h_j,
-            self.sel(wd=wd, ws=ws)
-        )
+        if save_memory:
+            x_j, y_j, h_j = X.flatten(), Y.flatten(), H.flatten()
+
+            pass
+        else:
+            x_j, y_j, h_j = X.flatten(), Y.flatten(), H.flatten()
+
+            wd, ws = self._wd_ws(wd, ws)
+            lw_j, WS_eff_jlk, TI_eff_jlk = self.windFarmModel._flow_map(
+                x_j, y_j, h_j,
+                self.sel(wd=wd, ws=ws)
+            )
 
         return FlowBox(self, X, Y, H, lw_j, WS_eff_jlk, TI_eff_jlk)
 

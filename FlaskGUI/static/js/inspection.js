@@ -72,7 +72,32 @@ $(document).ready(function () {
 
     // Initialize some of the buttons:
     l_buttons.forEach(item => item.return_to_state());
+    var turb_img_utf8 = "data:image/png;base64,"
 
+    // Time constrained calls:
+    function update_canvas() {
+        $.getJSON('/inspection/drone_canvas_pos', {},
+            function (data) {
+                console.log("request_drone_data");
+                console.log(data);
+                $('#drone').css({
+                    'left': data['responds'][0],
+                    'top': data['responds'][1]
+                });
+            });
+        $.getJSON('/inspection/get_wind_info', {},
+            function (data) {
+                $('#wind_info_text').html("wind speed: " + data["responds"]["ws"] + ", wind direction: " + data["responds"]["wd"] + ", ti: " + data["responds"]["wti"]);
+                var img_utf8 = "data:image/png;base64," + data["responds"]["turb_img"]
+                if (img_utf8 !== turb_img_utf8) {
+                    turb_img_utf8 = img_utf8
+                    $('#turb_img').attr("src", img_utf8);
+                }
+                $('#turb_smoothness').html(data["responds"]["wturb"])
+            });
+    }
+
+    setInterval(update_canvas, 500)
 
     // Get the button that opens the modal
     var btn = document.getElementById("test_button");
@@ -106,6 +131,11 @@ $(document).ready(function () {
         $.getJSON('/inspection/flow_map', {},
             function (data) {
                 $('#flow_map_img').attr("src", "data:image/png;base64," + data["flow_map"])
+                $('#ti_map_img').attr("src", "data:image/png;base64," + data["ti_map"])
+                $('.canvas').css({
+                    'background-img': 'none',
+                    'background': 'url(data:image/png;base64,' + data["flow_data_blue"] + ')'
+                })
                 console.log(data);
                 start_btn.set_btn_state(false)
                 l_buttons.forEach(item => item.return_to_state());
@@ -260,7 +290,65 @@ $(document).ready(function () {
         }
     });
 
+    // $('#turb_smooth_slider').slider().on('slide', function (event) {
+    //     var a = event.value.newValue;
+    //     var b = event.value.oldValue;
+    //
+    //     var changed = !($.inArray(a[0], b) !== -1 &&
+    //         $.inArray(a[1], b) !== -1 &&
+    //         $.inArray(b[0], a) !== -1 &&
+    //         $.inArray(b[1], a) !== -1 &&
+    //         a.length === b.length);
+    //     if (changed) {
+    //         $.post('/inspection/set_turb_scale', {'scalar': a},
+    //             function (data) {
+    //                 if (data["reponds"] === 200) {
+    //                     console.log("SUCCESS");
+    //                 }
+    //                 console.log(data);
+    //             });
+    //     }
+    // });
+    const turb_slider = $("#turb_smooth_slider");
+    const turb_bubble = $("#turb_smooth_bubble");
+    turb_slider.change(function () {
+        $.post('/inspection/set_turb_info', {'scalar': turb_slider.val()},
+            function (data) {
+                if (data["reponds"] === 200) {
+                    console.log("SUCCESS");
+                }
+                console.log(data);
+            });
+        setBubble(turb_slider, turb_bubble);
+    });
 
+    const turb_mag_slider = $("#turb_mag_slider");
+    const turb_mag_bubble = $("#turb_mag_bubble");
+    turb_mag_slider.change(function () {
+        $.post('/inspection/set_turb_info', {'mag': turb_mag_slider.val()},
+            function (data) {
+                if (data["reponds"] === 200) {
+                    console.log("SUCCESS");
+                }
+                console.log(data);
+            });
+        setBubble(turb_mag_slider, turb_mag_bubble);
+    });
+
+    function setBubble(range, bubble) {
+        const val = range.val();
+        const min = range.attr('min') ? range.attr('min') : 0;
+        const max = range.attr('max') ? range.attr('max') : 100;
+        const newVal = Number(((val - min) * 100) / (max - min));
+        bubble.html(val);
+        // Sorta magic numbers based on size of the native UI thumb
+        bubble.css({
+            'left': `calc(${newVal}% + (${8 - newVal * 0.17}px))`
+        });
+    }
+
+    setBubble(turb_slider, turb_bubble);
+    setBubble(turb_mag_slider, turb_mag_bubble);
     // function update_canvas() {
     //     // your function code here
     //     // $.getJSON('/inspection/airsim_takeoff', {},

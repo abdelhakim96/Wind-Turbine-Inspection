@@ -113,47 +113,33 @@ class AirSimBackend(object):
     def set_wind_str(self, str):
         self.set_wind(self.wind_direction, str)
 
-    def set_wind(self, wind_angle, wind_str):
+    def set_wind(self, wind_angle, wind_str, turb_info_drone_pos=np.array([0, 0, 0])):
         if self.offline_mode:
             return False
 
-        def set_wind_func(wind_angle, wind_str, client):
-            smooth = False
-            down_ws = np.linspace(self.wind_str, 0., 10)
-            up_ws = np.linspace(0., wind_str, 10)
-            smooth_ws = np.append(down_ws, up_ws)
-            smooth_wd = np.linspace(self.wind_direction, wind_angle, 20)
-            if smooth:
-                for i in range(len(smooth_wd)):
-                    ws = smooth_ws[i]
-                    wd = smooth_wd[i]
-                    wind = self.deg_to_vector2d(wd)
-                    wind = self.apply_str(wind, ws)
-                    wind = airsim.Vector3r(-wind[0], -wind[1], 0)
-                    client.simSetWind(wind)
-                    self.wind_str = wind_str
-                    self.wind_direction = wind_angle
-            else:
-                wind = self.deg_to_vector2d(wind_angle)
-                wind = self.apply_str(wind, wind_str)
-                wind = airsim.Vector3r(-wind[0], -wind[1], 0)
-                if self.wind_change is None or wind.x_val != self.wind_change.x_val or wind.y_val != self.wind_change.y_val:
-                    print("Airsim_bg: Wind: ", wind)
-                    self.wind_change = wind
-                client.simSetWind(wind)
-                self.wind_str = wind_str
-                self.wind_direction = wind_angle
+        def set_wind_func(wind_angle, wind_str, turb_info_drone_pos, client):
+            wind = self.deg_to_vector2d(wind_angle)
+            wind = self.apply_strength(wind, wind_str)
+            wind = np.append(wind, 0) * -1 + turb_info_drone_pos
+            wind = airsim.Vector3r(wind[0], wind[1], wind[2])
+            if self.wind_change is None or wind.x_val != self.wind_change.x_val or wind.y_val != self.wind_change.y_val:
+                print("Airsim_bg: Wind: ", wind)
+                self.wind_change = wind
+            client.simSetWind(wind)
+            self.wind_str = wind_str
+            self.wind_direction = wind_angle
             self.rotate_wind_turbines()
 
-        return self.client_check(partial(set_wind_func, wind_angle, wind_str))
+        return self.client_check(partial(set_wind_func, wind_angle, wind_str, turb_info_drone_pos))
 
     def deg_to_vector2d(self, deg):
         rad = self.deg_to_rad(deg)
         return np.array([np.cos(rad), np.sin(rad)])
 
-    def apply_str(self, wind_vec, str):
+    @staticmethod
+    def apply_strength(wind_vec, strength):
         norm1 = wind_vec / np.sum(np.abs(wind_vec))
-        return norm1 * str
+        return norm1 * strength
 
     def takeoff(self):
         if self.offline_mode:
@@ -199,7 +185,8 @@ class AirSimBackend(object):
             return pose.position.x_val, pose.position.y_val, pose.position.z_val
         except error.RPCError:
             print("No connection established.")
-            return None, None, None
+            drone_pos = offline_test_set['DroneLandingPlatform']['ue4_pose']
+            return drone_pos['x'], drone_pos['y'], 0.0
 
 
 offline_test_set = {'WindTurbine1': {'name': 'WindTurbine1',
