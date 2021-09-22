@@ -1,6 +1,3 @@
 [submodule "WTI_catkin"]
 	path = WTI_catkin
 	url = https://github.com/abdelhakim96/WTI_catkin.git
-[submodule "WTI_px4"]
-	path = WTI_px4
-	url = https://github.com/Zartris/WTI_px4
