@@ -15,7 +15,7 @@ offboard_control::offboard_control(const ros::NodeHandle &nh, const ros::NodeHan
                                           &offboard_control::poseCallback_local, this,
                                           ros::TransportHints().tcpNoDelay());
 
-    current_position_global_sub_ = nh_.subscribe("/mavros/global_position/loca", 1,
+    current_position_global_sub_ = nh_.subscribe("/mavros/global_position/local", 1,
                                                  &offboard_control::poseCallback_global, this,
                                                  ros::TransportHints().tcpNoDelay());
 
@@ -157,14 +157,14 @@ void offboard_control::cmdloopCallback(const ros::TimerEvent &event) {
             int b_h=10;
             float pi=3.14159;
             
-            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 270-a_t));
-            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 270-a_t));
-            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t+b_h, 0, 0, 360-a_t));
-            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t, 0, 0, 360-a_t));
-            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 90-a_t));
-            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 90-a_t));
-            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t+b_h, 0, 0, 180-a_t));
-            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t, 0, 0, 180-a_t));
+//            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 270-a_t));
+//            waypointList.push(generatePose(x_t + r_t * sin((a_t) * (pi/ 180)), y_t + r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 270-a_t));
+//            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t+b_h, 0, 0, 360-a_t));
+//            waypointList.push(generatePose(x_t - r_t * sin((90-a_t) * (pi/ 180)), y_t + r_t * cos((90-a_t) * (pi/ 180)), z_t, 0, 0, 360-a_t));
+//            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t, 0, 0, 90-a_t));
+//            waypointList.push(generatePose(x_t - r_t * sin((a_t) * (pi/ 180)), y_t - r_t * cos((a_t) * (pi/ 180)), z_t+b_h, 0, 0, 90-a_t));
+//            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t+b_h, 0, 0, 180-a_t));
+//            waypointList.push(generatePose(x_t + r_t * sin((90 - a_t) * (pi/ 180)), y_t - r_t * cos((90 - a_t) * (pi/ 180)), z_t, 0, 0, 180-a_t));
            
             
 

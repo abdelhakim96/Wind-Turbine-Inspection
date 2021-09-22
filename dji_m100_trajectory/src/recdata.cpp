@@ -153,8 +153,8 @@ int main(int argc, char **argv)
 
     // Other subscribers
     trajectory_start_sub = nh.subscribe<std_msgs::Bool>("trajectory_on", 1, trajectory_start_cb);
-    ref_trajectory_sub = nh.subscribe<geometry_msgs::Vector3>("ref_trajectory/pose", 1, ref_trajectory_cb);
-    ref_trajectory_delay_sub = nh.subscribe<geometry_msgs::Vector3>("ref_trajectory/pose_delayed", 1, ref_trajectory_delay_cb);
+    ref_trajectory_sub = nh.subscribe<geometry_msgs::Vector3>("ref_trajectory/position", 1, ref_trajectory_cb);
+    ref_trajectory_delay_sub = nh.subscribe<geometry_msgs::Vector3>("ref_trajectory/position_delayed", 1, ref_trajectory_delay_cb);
     ref_velocity_sub = nh.subscribe<geometry_msgs::Vector3>("ref_trajectory/velocity", 1, ref_velocity_cb);
 
     // UAV feedback subscribers

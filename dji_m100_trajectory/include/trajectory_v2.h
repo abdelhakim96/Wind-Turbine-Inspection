@@ -35,6 +35,7 @@ std::string mocap_topic, Llidar_topic, Clidar_topic, Rlidar_topic, sonar_topic;
 
 // Publishers
 ros::Publisher ref_pos_pub;
+ros::Publisher ref_pose_pub;
 ros::Publisher ref_pos_delay_pub;
 ros::Publisher ref_vel_pub;
 ros::Publisher ref_yaw_pub;

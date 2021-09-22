@@ -107,8 +107,8 @@ int main(int argc, char **argv)
     ros::param::get("use_current_pos",use_current_pos);
 
     // Publisher
-    ref_pos_pub = nh.advertise<geometry_msgs::Vector3>("ref_trajectory/pose", 1);
-    ref_pos_delay_pub = nh.advertise<geometry_msgs::Vector3>("ref_trajectory/pose_delayed", 1);
+    ref_pos_pub = nh.advertise<geometry_msgs::Vector3>("ref_trajectory/position", 1);
+    ref_pos_delay_pub = nh.advertise<geometry_msgs::Vector3>("ref_trajectory/position_delayed", 1);
     ref_vel_pub = nh.advertise<geometry_msgs::Vector3>("ref_trajectory/velocity", 1);
     ref_yaw_pub = nh.advertise<std_msgs::Float64>("ref_trajectory/yaw", 1);
     setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
