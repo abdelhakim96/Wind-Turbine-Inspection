@@ -1,3 +1,0 @@
-<launch>
-    <node name="recdata" pkg="dji_m100_trajectory" type="recdata" output="screen" />
-</launch>
