@@ -1,0 +1,18 @@
+GUIDE TO RUN ROS AIRSIM MAVROS PX4 IN UNREAL ENGINE:
+
+Reason to do this:
+If you want to develop rosnodes to work with px4 and mavros without relying on the extra airsim layer at the end product.
+So we want to use airsim to simulate our drone and provide visual sensor information and collision while building your node, but when deploying to drone no airsim dependencies are needed.
+
+Order to start the programs in:
+1. MavRos rosnode:
+	* roslaunch mavros px4.launch fcu_url:="udp://:14540@192.168.1.36:14557"
+	* https://docs.px4.io/master/en/simulation/ros_interface.html
+2. PX4 SITL:
+	* make px4_sitl_default none_iris
+	* https://microsoft.github.io/AirSim/px4_sitl/
+3. Run Unreal envirionment
+	* Here we need to wait for everything to connect (This step takes a minut or two)
+4. AirSim ros nodes.
+	* 
+
