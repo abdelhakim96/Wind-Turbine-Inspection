@@ -25,6 +25,6 @@ fi
 #./new_tab.sh "roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557" gcs_url:="udp-b://@""
 ./new_tab.sh "roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557";"
 ## Run mocap_gazebo
-./new_tab.sh "rosrun beginner_tutorials mocap_bridge_gazebo;"
+./new_tab.sh "rosrun mocap mocap_bridge_gazebo;"
 
 
