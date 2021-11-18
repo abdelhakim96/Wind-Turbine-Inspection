@@ -1,0 +1,21 @@
+cd Wind-Turbine-Inspection/WTI_px4_modified/shell_scripts
+./run_sitl_gazebo_withWrapper_terminator.sh matrice_100
+
+
+roslaunch dji_m100_trajectory m100_trajectory_v2_indoor.launch
+
+
+
+roslaunch nmpc_pc_poseaware_learning nmpc_pc_learning_indoor.launch
+
+
+
+ rostopic echo /ref_trajectory/pose
+
+
+
+
+
+
+
+ rosrun acado_ccode_generation nmpc_pc_learning_posaware_ccode
