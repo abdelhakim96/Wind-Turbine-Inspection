@@ -11,3 +11,7 @@ export GAZEBO_MODEL_PATH=:$clone_dir/Tools/sitl_gazebo/models
 export GAZEBO_PLUGIN_PATH=:$clone_dir/Tools/sitl_gazebo/Build/devel/lib
 export GAZEBO_MODEL_DATABASE_URI=:http://get.gazebosim.org
 export SITL_GAZEBO_PATH=:$clone_dir/Tools/sitl_gazebo
+
+
+cd Wind-Turbine-Inspection-main/WTI_px4_modified/shell_scripts/
+cd Wind-Turbine-Inspection-main/WTI_px4_modified/shell_scripts/
