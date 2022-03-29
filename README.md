@@ -21,4 +21,7 @@ cd Wind-Turbine-Inspection-main/WTI_px4_modified/shell_scripts/
 ./run_sitl_gazebo_withWrapper_terminator.sh matrice 100
 
 
+
+sudo apt-get ros-mavros-mav-msgs 
+use the px4_modified from drive
 install_dependencies_and_setup_px4_modified.sh
