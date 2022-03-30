@@ -30,7 +30,9 @@ Build workspace
 ```bash
 cd WTI_catkin
 ```
-
+```bash
+cd catkin_make
+```
 
 
 
