@@ -16,15 +16,17 @@ git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
 ```
 
 
-clone the catkin_ws
+Clone the catkin_ws
 
 ```bash
 cd catkin_ws
 ```
 
 ```bash
-cd catkin_ws
+cd WTI_catkin
 ```
+
+Build workspace
 ```bash
 cd WTI_catkin
 ```
