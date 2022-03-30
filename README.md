@@ -9,9 +9,6 @@ Installation instructions:
 Clone directory 
 ```bash
 cd
-```
-
-```bash
 git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
 ```
 
@@ -20,9 +17,6 @@ Clone the catkin_ws
 
 ```bash
 cd catkin_ws
-```
-
-```bash
 cd WTI_catkin
 ```
 
