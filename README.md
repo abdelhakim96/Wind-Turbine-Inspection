@@ -43,8 +43,28 @@ alias offboard='rosrun mavros mavsys mode -c OFFBOARD'
 ```
 
 
-Running the simulation:
+Starting the simulation:
 ```bash
 cd Wind-Turbine-Inspection/WTI_px4_modified/shell_scripts/
 ./run_sitl_gazebo_withWrapper_terminator.sh matrice_100
 ```
+
+Running the Inspection Planner
+
+run the rqt 
+
+
+Activate climb, setpointtraj and hover1
+
+in terminal arm and set off board on by typing the following commands
+```bash
+arm
+offboard
+```
+
+
+The drone will take off.
+
+
+Next launch the VT-MPC. 
+
