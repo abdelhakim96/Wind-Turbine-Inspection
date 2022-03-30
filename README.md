@@ -36,11 +36,12 @@ Build the repo:
 Catkin_make
 
 
-Dependecies:
+Dependecies and setup px4:
+```bash
 sudo apt-get ros-mavros-mav-msgs 
-setup px4
+cd Wind-Turbine-Inspection/WTI_px4_modified
 install_dependencies_and_setup_px4_modified.sh
-
+```
 
 Add alias:
 ```bash
