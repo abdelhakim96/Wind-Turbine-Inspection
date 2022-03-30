@@ -5,6 +5,33 @@ This repository contains the simulation files for the autonomous wind turbine in
 Installation instructions:
 - Install Ubuntu 18.04 and ROS melodic
 
+
+Clone directory 
+```bash
+cd
+```
+
+```bash
+git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
+```
+
+
+clone the catkin_ws
+
+```bash
+cd catkin_ws
+```
+
+```bash
+cd catkin_ws
+```
+```bash
+cd WTI_catkin
+```
+
+
+
+
 Clone the directory:
 clone_dir=~/Wind-Turbine-Inspection/WTI_px4_modified     (use the one from the drive)
 
