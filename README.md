@@ -28,14 +28,6 @@ cd catkin_make
 
 
 
-Clone the directory:
-clone_dir=~/Wind-Turbine-Inspection/WTI_px4_modified     (use the one from the drive)
-
-
-Build the repo:
-Catkin_make
-
-
 Dependecies and setup px4:
 ```bash
 sudo apt-get ros-mavros-mav-msgs 
