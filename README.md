@@ -35,7 +35,7 @@ cd Wind-Turbine-Inspection/WTI_px4_modified
 install_dependencies_and_setup_px4_modified.sh
 ```
 
-Add alias:
+Add alias in bash rc:
 ```bash
 alias arm='rosrun mavros mavsafety arm'
 alias disarm='rosrun mavros mavsafety disarm'
