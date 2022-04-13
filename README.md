@@ -52,12 +52,16 @@ cd Wind-Turbine-Inspection/WTI_px4_modified/shell_scripts/
 
 Running the Inspection Planner
 
-run the rqt 
+launch rqt_reconfigure trajectory 
+
+```bash
+roslaunch dji_m100_trajectory m100_trajectory_v2_indoor.launch 
+```
+
+Activate traj_on 
 
 
-Activate climb, setpointtraj and hover1
-
-in terminal arm and set off board on by typing the following commands
+in the  terminal arm the dorne and set the mode to offboard on by typing the following commands
 ```bash
 arm
 offboard
