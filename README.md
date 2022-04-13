@@ -26,6 +26,7 @@ cd WTI_catkin
 cd catkin_make
 ```
 
+Download PX4 folder 
 
 
 Dependecies and setup px4:
@@ -66,5 +67,12 @@ offboard
 The drone will take off.
 
 
-Next launch the VT-MPC. 
+Next launch the VT-MPC.
+
+```bash
+roslaunch quaternion_point_traj_nmpc quaternion_point_traj_nmpc.launch
+```
+
+
+
 
