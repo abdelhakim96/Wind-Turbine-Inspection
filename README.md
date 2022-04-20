@@ -12,11 +12,9 @@ cd
 git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
 ```
 Download the PX4 folder from here and place it inside the Wind-Turbine-Inspection folder
-[link](https://drive.google.com/file/d/1BpnlglYMQI5q9lEwMCPNLGjPj5mzCoe5/view?usp=sharing)
+[PX4 files download](https://drive.google.com/file/d/1BpnlglYMQI5q9lEwMCPNLGjPj5mzCoe5/view?usp=sharing)
 
 Clone the WTI_catkin inside the catkin_ws
-
-
 
 ```bash
 cd catkin_ws
@@ -27,22 +25,23 @@ Switch to the most recent branch using git checkout
 
 Build workspace
 ```bash
-cd WTI_catkin
+cd catkin_ws
 cd catkin_make
 ```
 
-Download PX4 folder 
 
-
-
-Dependecies and setup px4:
+Download dependecies and setup px4:
 ```bash
 sudo apt-get ros-mavros-mav-msgs 
 cd Wind-Turbine-Inspection/WTI_px4_modified
 install_dependencies_and_setup_px4_modified.sh
 ```
 
-Add alias in bash rc:
+Add alias for arming the drone and setting the mode to offboard.
+```bash
+sudo gedit ~/.bashrc
+```
+Add the following lines for
 ```bash
 alias arm='rosrun mavros mavsafety arm'
 alias disarm='rosrun mavros mavsafety disarm'
@@ -83,6 +82,13 @@ Next launch the VT-MPC.
 roslaunch quaternion_point_traj_nmpc quaternion_point_traj_nmpc.launch
 ```
 
+Running the whole inspection frame work:
 
 
+
+
+Adding wind to the simulation
+```bash
+roslaunch dji_m100_trajectory windgen_recdata.launch
+```
 
