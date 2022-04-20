@@ -3,7 +3,7 @@
 
 This repository contains the code and simulation files for the autonomous wind turbine inspection project. For this purpose, a time optimal path planner and a Visual tracking MPC is developed. Link to paper:
 
-Installation instructions:
+**Installation instructions:**
  Install [Ubuntu 18.04](https://releases.ubuntu.com/18.04/)  and [ROS melodic](http://wiki.ros.org/melodic/Installation/Ubuntu) 
 
 
@@ -51,7 +51,7 @@ alias offboard='rosrun mavros mavsys mode -c OFFBOARD'
 ```
 
 
-Starting the simulation:
+**Starting the simulation:**
 ```bash
 cd Wind-Turbine-Inspection/WTI_px4_modified/shell_scripts/
 ./run_sitl_gazebo_withWrapper_terminator.sh matrice_100
@@ -78,11 +78,15 @@ offboard
 The drone will take off.
 
 
-Next launch the VT-MPC.
+Next: launch the VT-MPC.
 
 ```bash
 roslaunch quaternion_point_traj_nmpc quaternion_point_traj_nmpc.launch
 ```
+
+
+
+
 
 
 Adding wind to the simulation
