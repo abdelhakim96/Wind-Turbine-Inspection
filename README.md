@@ -6,7 +6,7 @@ Installation instructions:
  Install [Ubuntu 18.04](https://releases.ubuntu.com/18.04/)  and [ROS melodic](http://wiki.ros.org/melodic/Installation/Ubuntu) 
 
 
-Clone directory 
+Clone directory in the home folder
 ```bash
 cd
 git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
