@@ -99,7 +99,9 @@ roslaunch dji_m100_trajectory windgen_recdata.launch
 
 
 
-Running the whole inspection frame work:
+**Running the whole inspection frame work:**
+The optimal sequence of points and surface normals are created in txt file format, which the NMPC uses to generate optimal control actions.
+
 
 
 
