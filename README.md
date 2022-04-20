@@ -1,5 +1,7 @@
 # Autonomous Wind Turbine Inspection Project
 
+/home/airlab/Desktop/orth_circ.png
+
 This repository contains the simulation files for the autonomous wind turbine inspection project. For this purpose, a time optimal path planner and a Visual tracking MPC is developed. Link to paper:
 
 Installation instructions:
