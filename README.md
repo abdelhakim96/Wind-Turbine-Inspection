@@ -1,5 +1,5 @@
 # Autonomous Wind Turbine Inspection Project
-![My Image](archive/orth_circ.png)
+![My Image](archive/abstract-1.png)
 
 This repository contains the code and simulation files for the autonomous wind turbine inspection project. For this purpose, a time optimal path planner and a Visual tracking MPC is developed. Link to paper:
 
