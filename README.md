@@ -104,7 +104,7 @@ roslaunch dji_m100_trajectory windgen_recdata.launch
 The optimal sequence of points and surface normals are created in txt file format, which the NMPC uses to generate optimal control actions. The planner is run for a default wind turbine model.
 
 To run the default planner: 
--bring the drone to the initial position (-3, 0, 3)
+- Bring the drone to the initial position (-3, 0, 3)
 - Run the point and normal generator node
 ```bash
 rosrun dji_m100_trajectory GP_statemachine
