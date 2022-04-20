@@ -43,6 +43,7 @@ sudo apt-get ros-mavros-mav-msgs
 cd Wind-Turbine-Inspection
 ./install_dependencies_and_setup_px4_modified.sh
 ```
+note: ignore the errors related to python 2.7 
 
 Add alias for arming the drone and setting the mode to offboard.
 ```bash
