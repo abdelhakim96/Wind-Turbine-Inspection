@@ -84,13 +84,19 @@ Next launch the VT-MPC.
 roslaunch quaternion_point_traj_nmpc quaternion_point_traj_nmpc.launch
 ```
 
-Running the whole inspection frame work:
-
-
-
 
 Adding wind to the simulation
 ```bash
 roslaunch dji_m100_trajectory windgen_recdata.launch
 ```
+
+
+
+
+
+
+Running the whole inspection frame work:
+
+
+
 
