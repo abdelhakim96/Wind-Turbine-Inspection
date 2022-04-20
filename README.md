@@ -41,7 +41,7 @@ Download dependecies and setup px4:
 ```bash
 sudo apt-get ros-mavros-mav-msgs 
 cd Wind-Turbine-Inspection
-install_dependencies_and_setup_px4_modified.sh
+./install_dependencies_and_setup_px4_modified.sh
 ```
 
 Add alias for arming the drone and setting the mode to offboard.
