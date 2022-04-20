@@ -11,7 +11,8 @@ Clone directory in the home folder
 cd
 git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
 ```
-
+Download the PX4 folder from here and place it inside the Wind-Turbine-Inspection folder
+[link](https://drive.google.com/file/d/1BpnlglYMQI5q9lEwMCPNLGjPj5mzCoe5/view?usp=sharing)
 
 Clone the catkin_ws
 
