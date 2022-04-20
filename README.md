@@ -7,7 +7,8 @@ This repository contains the code and simulation files for the autonomous wind t
 
  Install [Ubuntu 18.04](https://releases.ubuntu.com/18.04/)  and [ROS melodic](http://wiki.ros.org/melodic/Installation/Ubuntu) 
 
-**Create SSH key for computer**
+Create SSH key for computer
+
 Follow the following tutorial 
 [Create SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
