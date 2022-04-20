@@ -14,12 +14,16 @@ git clone https://github.com/abdelhakim96/Wind-Turbine-Inspection
 Download the PX4 folder from here and place it inside the Wind-Turbine-Inspection folder
 [link](https://drive.google.com/file/d/1BpnlglYMQI5q9lEwMCPNLGjPj5mzCoe5/view?usp=sharing)
 
-Clone the catkin_ws
+Clone the WTI_catkin inside the catkin_ws
+
+
 
 ```bash
 cd catkin_ws
-cd WTI_catkin
+git clone git@github.com:abdelhakim96/WTI_catkin.git
 ```
+Switch to the most recent branch using git checkout
+
 
 Build workspace
 ```bash
@@ -28,6 +32,7 @@ cd catkin_make
 ```
 
 Download PX4 folder 
+
 
 
 Dependecies and setup px4:
